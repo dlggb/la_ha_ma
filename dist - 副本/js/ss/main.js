@@ -9,11 +9,6 @@ import store from "./store";
 import Vue2TouchEvents from "vue2-touch-events";
 
 Vue.use(Vue2TouchEvents);
-// ------------------
-// const cors = require("cors");
-// import cors from "cors";
-// Vue.use(cors);
-// ------------------
 
 Vue.config.productionTip = false;
 
