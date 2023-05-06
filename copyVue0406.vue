@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <!--  -->
+    <!-- 遮罩 -->
     <div
       class="mack"
       v-show="mack"
@@ -80,86 +80,112 @@
         </div>
       </div>
       <!-- 全部机台 -->
-      <div class="por02">
-        <div class="por">
-          <div
-            v-for="(item, index) in indexData.length"
-            :key="index"
-            class="machine"
-            style="--display: none"
-            :id="index"
-          >
-            <input
-              type="text"
-              placeholder="0 #"
-              :class="ipt_one ? 'clearIpt iptOne' : 'clearIpt'"
-              @input="countOrResult($event)"
-              :value="indexData[index].code"
-            />
-            <input
-              type="text"
-              placeholder="0000"
-              class="clearIpt"
-              @input="countOrResult($event)"
-              :value="indexData[index].coding"
-            />
-            <input
-              type="text"
-              placeholder="产品"
-              class="clearIpt"
-              @input="countOrResult($event)"
-              :value="indexData[index].product"
-            />
-            <input
-              type="text"
-              placeholder="9999"
-              class="clearIpt"
-              @input="countOrResult($event)"
-              :value="indexData[index].target"
-            />
-            <!-- 计算 -->
-            <input
-              class="countIpt clearIpt"
-              type="text"
-              @input="countOrResult($event)"
-              :value="indexData[index].count"
-            />
-            <!-- 结果 -->
-            <input
-              type="button"
-              class="countResult"
-              :value="indexData[index].result"
-              disabled
-            />
-            <!-- 开始/结束 -->
-            <input
-              type="button"
-              @click="clearIpts($event)"
-              :style="{
-                background: indexData[index].background,
-                color: indexData[index].color,
-              }"
-              class="clearBtn"
-              value="开始"
-            />
-            <!-- 输入数据显示时间 -->
-            <ul class="time">
-              <li
-                v-for="(item, i) in 7"
-                :key="i"
-                v-html="indexData[index].liData[i]"
-                v-show="nowTime"
-              ></li>
-            </ul>
-            <div class="slide" @click="slide($event)"></div>
-            <p class="jiShuan">{{ indexData[index].miaoShun }}</p>
-            <div class="rightBtn">
-              <div class="collection" @click="clickCollection($event)">
-                收藏
-              </div>
-              <div class="delete" @click="clickDelete($event)">删除</div>
-            </div>
+      <div class="por">
+        <div
+          v-for="(item, index) in indexData.length"
+          :key="index"
+          class="machine"
+          :id="index"
+        >
+          <input
+            type="text"
+            placeholder="9999"
+            class="clearIpt"
+            @input="ipt($event)"
+            :value="indexData[index].target"
+          />
+
+          <input
+            type="text"
+            placeholder="产品"
+            class="clearIpt"
+            @input="ipt($event)"
+            :value="indexData[index].product"
+          />
+
+          <input
+            type="text"
+            placeholder="0000"
+            class="clearIpt"
+            @input="ipt($event)"
+            :value="indexData[index].coding"
+          />
+          <input
+            type="text"
+            placeholder="0 #"
+            :class="ipt_one ? 'clearIpt iptOne' : 'clearIpt'"
+            @input="ipt($event)"
+            :value="indexData[index].code"
+          />
+          <!-- 计算 -->
+          <input
+            class="countIpt clearIpt"
+            type="text"
+            @input="ipt($event)"
+            @focus="resultFocus($event)"
+            :value="indexData[index].count"
+          />
+          <!-- 结果 -->
+          <input
+            type="button"
+            class="countResult"
+            :value="indexData[index].result"
+            disabled
+          />
+          <!-- 清除 -->
+          <input
+            type="button"
+            @click="clearIpts($event)"
+            :style="{
+              background: indexData[index].clear,
+              color: indexData[index].color,
+            }"
+            class="clearBtn"
+            value="开始"
+          />
+
+          <!-- 输入数据显示时间 -->
+          <ul class="time">
+            <li
+              v-for="(item, i) in 7"
+              :key="i"
+              v-html="indexData[index].liData[i]"
+              v-show="nowTime"
+            ></li>
+          </ul>
+          <div class="slide" @click="slide($event)"></div>
+          <p class="jiShuan"></p>
+          <!-- 清除弹窗提示 -->
+          <div class="confirm">
+            <p>确定清除这个机 <br />台数据吗?</p>
+            <div class="left" @click="clear($event)">取消</div>
+            <div class="right" @click="cancel($event)">确定</div>
           </div>
+          <div class="rightBtn">
+            <div class="collection" @click="clickCollection($event)">收藏</div>
+            <div class="delete" @click="clickDelete($event)">删除</div>
+          </div>
+        </div>
+        <!-- 计算框中的数字键盘 -->
+        <div class="keyboard" v-show="keyboardFlag" :id="keyboardFlagId">
+          <button @click="addNumber(7)">7</button>
+          <button @click="addNumber(8)">8</button>
+          <button @click="addNumber(9)">9</button>
+          <button @click="deleteLast()" class="delete">
+            <i class="fas fa-backspace"></i>
+          </button>
+          <button @click="addNumber(4)">4</button>
+          <button @click="addNumber(5)">5</button>
+          <button @click="addNumber(6)">6</button>
+          <button @click="addNumber('-')" class="operator">-</button> <br />
+          <button @click="addNumber(1)">1</button>
+          <button @click="addNumber(2)">2</button>
+          <button @click="addNumber(3)">3</button>
+          <button @click="addNumber('+')" class="operator">+</button>
+          <button @click="addNumber(0)" class="lin">0</button>
+          <button @click="addNumber('.')">.</button>
+          <button @click="addNumber('x')" class="operator">×</button>
+          <button @click="resultBlur()" class="complete">完成</button>
         </div>
       </div>
       <!-- 其他选项中的排产 -->
@@ -170,9 +196,6 @@
         </p>
       </div>
     </div>
-
-    <!-- 退出按钮 -->
-    <div class="back02" v-show="back02Flag"></div>
   </div>
 </template>
 
@@ -181,8 +204,7 @@ import axios from "axios";
 import Vue from "vue";
 import Vant from "vant";
 import "vant/lib/index.css";
-import { useRequest } from "vue-request";
-Vue.use(useRequest);
+
 Vue.use(Vant);
 export default {
   name: "App",
@@ -198,7 +220,7 @@ export default {
       showReset: false,
       // 右上角选项弹窗
       optionsShow: false,
-      //
+      // 遮罩
       mack: false,
       // 排产
       production: false,
@@ -283,11 +305,13 @@ export default {
       timerId: null,
       // 开始计数的 秒 数
       start_i: 0,
-      // 退出按钮
-      back02Flag: false,
+      // 计算数字键盘显示关闭
+      keyboardFlag: true,
+      // keyboardFlag id
       keyboardFlagId: 0,
-      token: "",
     };
+    // 计算input value
+    valueC = "";
   },
   methods: {
     back() {
@@ -315,7 +339,7 @@ export default {
       if (!!this.dataCount[id].flag) {
         e.currentTarget.style.opacity = "0.4";
         e.currentTarget.style.background = "orangered";
-        e.currentTarget.parentNode.children[9].innerHTML = "开";
+        e.currentTarget.parentNode.children[9].innerHTML = "";
         // ---------------
         this.dataCount[id].start_i = 0;
         // ---------------
@@ -331,14 +355,71 @@ export default {
         e.currentTarget.style.opacity = "0.2";
         // ---------------
         this.jiShuan(e.currentTarget, this.dataCount[id].start_i);
+        this.setStorage(e.currentTarget.parentNode);
       }
       this.dataCount[id].flag = !this.dataCount[id].flag;
     },
     jiShuan(e, num) {
-      if (num == null) return (e.parentNode.children[9].innerHTML = "");
       var day = Math.round(43200 / Number(num));
       e.parentNode.children[9].innerHTML = num + "秒" + day;
-      this.setStorage(e.parentNode);
+      this.setStorage(e, d);
+    },
+
+    // 计算 --------------
+    resultFocus(e) {
+      this.keyboardFlag = true;
+      this.keyboardFlagId = e.currentTarget.parentNode.id;
+    },
+    resultBlur() {
+      this.keyboardFlag = false;
+    },
+    // 添加数字
+    addNumber(num) {
+      var por =
+        document.querySelector(".por").children[this.keyboardFlagId]
+          .children[4];
+      por.focus();
+      por.value += num;
+      this.countOrResult(por.parentNode);
+    },
+    // 删除最后一个
+    deleteLast() {
+      var por =
+        document.querySelector(".por").children[this.keyboardFlagId]
+          .children[4];
+      por.focus();
+      por.value = por.value.slice(0, -1);
+      this.countOrResult(por.parentNode);
+    },
+    // 计算 --------------
+    cancel(e) {
+      let t = e.currentTarget.parentNode,
+        n = t.parentNode,
+        o = n.querySelectorAll("input"),
+        a = o.length,
+        r = n.children[6],
+        i = n.children[6],
+        l = n.querySelectorAll("li"),
+        miaoShun = n.children[9],
+        s = l.length;
+      for (let c = 0; c < a - 2; c++) o[c].value = "";
+      for (let c = 0; c < s; c++) l[c].innerHTML = "";
+      (r.style.background = ""),
+        (i.value = "= 0"),
+        (t.style.display = "none"),
+        (this.indexData[n.id] = {
+          code: "",
+          color: "#000",
+          coding: "",
+          product: "",
+          target: "",
+          clear: "",
+          count: "",
+          result: "= 0",
+          liData: "",
+          miaoShun: "",
+        }),
+        localStorage.setItem("indexData", JSON.stringify(this.indexData));
     },
     determine() {
       (this.mack = false),
@@ -358,7 +439,7 @@ export default {
         coding: "",
         product: "",
         target: "",
-        background: "green",
+        clear: "",
         count: "",
         result: "= 0",
         liData: "",
@@ -384,7 +465,7 @@ export default {
           coding: "",
           product: "",
           target: "",
-          background: "green",
+          clear: "",
           count: "",
           result: "= 0",
           liData: "",
@@ -412,62 +493,59 @@ export default {
     reset(e) {
       this.showReset = true;
     },
+    ipt(e) {
+      let t = this;
+      e = e.currentTarget;
+      let n = e.parentNode,
+        o = n.children[6],
+        a = n.querySelectorAll("input"),
+        r = a.length;
+      for (let i = 0; i < r - 2; i++) {
+        if ("" != a[i].value) {
+          o.style.background = "green";
+          break;
+        }
+        o.style.background = "";
+      }
+      t.countOrResult(n);
+    },
     countOrResult(e) {
-      e = e.currentTarget.parentNode;
-      let a = this,
+      let t,
+        n,
+        o,
+        a = this,
         r = e.children[5],
-        li = e.querySelectorAll("li"),
+        i = e.querySelectorAll("li"),
+        l = i.length,
         s = e.children[4],
-        u = s.value.split("+"),
+        c = s.value,
+        u = c.split("+"),
         d = u.length,
-        c = s.value;
-      // 如果包括 x 号
-      if (s.value.includes("x")) {
-        // 包含 +x 分割 有 x 转换 * 运算
-        if (s.value.includes("+x")) {
-          count = eval(
-            eval(c.split("+x")[0].replace("x", "*")) *
-              eval(c.split("+x")[1].replace("x", "*"))
-          );
-          if (count == 0) {
-            r.value = "= " + eval(c.split("*")[0]);
-          } else {
-            r.value = "= " + count;
+        p = false;
+      c.includes("x") &&
+        ((p = true), (t = c.split("x")), (u = t[0].split("+")), (n = t.length));
+      //   console.log(s.value);
+      for (let h = 0; h < 5; h++)
+        e.children[h].onblur = function () {
+          console.log(s.value);
+          if (s.value.includes(".")) {
+            return a.jiShuan(s, s.value.split(".")[0]);
           }
-        }
-        // 如果 splite以 x 分割后前一位是数字
-        if (
-          Number(c.split("x")[0][c.split("x")[0].length - 1]) ||
-          Number(c.split("x")[0][c.split("x")[0].length - 1]) == 0
-        ) {
-          r.value = "= " + eval(s.value.replace("x", "*"));
-        }
-      } else {
-        r.value = "= " + eval(s.value);
-      }
-      // ----------
-      if (s.value.includes(".")) {
-        a.jiShuan(s, s.value.split(".")[0]);
-      }
-      // ------------
-      if (s.value == "") r.value = "= 0";
-      // ----------
-      for (let i = 0; i < 5; i++) {
-        e.children[i].onblur = () => {
-          let h = e.children[0].value.split(""),
-            h2 = s.value.split(""),
-            f = h.length,
-            f2 = h2.length;
-          if (s.value != "") {
-            "+" != h2[f2 - 1] &&
-              (e.children[4].value = e.children[4].value + "+");
+          if (((o = 0), "" == s.value)) {
+            for (let e = 0; e < l; e++) i[e].innerHTML = "";
+            return (r.value = "= 0"), void a.setStorage(e);
           }
-          "#" != h[f - 1] && (e.children[0].value = e.children[0].value + "#"),
-            (li[d - 1].innerHTML = a.getNowTime());
-          console.log("222");
-          a.setStorage(e, d);
+          for (let e = 0; e < d; e++) o += Number(u[e]);
+          p && (o = Number(o * t[1])), (r.value = "= " + o);
+          let n = s.value.split(""),
+            c = n.length;
+          "+" != n[c - 1] && (s.value = s.value + "+");
+          let h = e.children[3].value.split(""),
+            f = h.length;
+          "#" != h[f - 1] && (e.children[3].value = e.children[3].value + "#"),
+            (i[d - 1].innerHTML = a.getNowTime()),
+            a.setStorage(e, d);
         };
-      }
     },
     getNowTime() {
       var e = "",
@@ -482,41 +560,42 @@ export default {
         e
       );
     },
-    setStorage(e, u_len) {
-      u_len = u_len || 0;
+    setStorage(e, t) {
+      t = t || "";
       let n = e.id,
-        o = e.children[0].value,
-        a = e.children[1].value,
-        r = e.children[2].value,
-        i = e.children[3].value,
+        o = e.children[3].value,
+        a = e.children[2].value,
+        r = e.children[1].value,
+        i = e.children[0].value,
         l = e.children[4].value,
-        b = e.children[6].style.background,
-        c = e.children[6].style.color,
-        v = e.children[5].value,
+        s = e.children[6].style.background,
+        b = e.children[6].style.color,
+        c = e.children[5].value,
         u = e.children[7].children,
+        miaoShun = e.children[9].innerHTML,
         d = u.length,
-        miaoShun = e.children[9].innerText,
         p = new Array(d);
-      console.log(miaoShun, "sws");
-      for (let f = 0; f < u_len; f++) p[f] = u[f].innerHTML;
+      for (let f = 0; f < t; f++) p[f] = u[f].innerHTML;
       let h = e.parentNode.querySelectorAll(".machine").length;
       this.indexData.machineLen = h;
-      for (let f = 0; f < h; f++) {
+      for (let f = 0; f < h; f++)
         n == f &&
           (this.indexData[f] = {
             code: o,
+            color: b,
             coding: a,
             product: r,
             target: i,
-            background: b,
-            color: c,
+            clear: s,
+            color: b,
             count: l,
-            result: v,
+            result: c,
             liData: p,
             miaoShun: miaoShun,
           });
-        localStorage.setItem("indexData", JSON.stringify(this.indexData));
-      }
+
+      console.log(this.indexData);
+      localStorage.setItem("indexData", JSON.stringify(this.indexData));
     },
     setToken() {},
     uploadImg() {
@@ -528,11 +607,10 @@ export default {
         a = o.getMonth() + 1,
         r = o.getDate();
       a < 10 && (a = "0" + a);
-      let i = a + "月" + r + "日",
-        s = "",
-        that = this;
+      let i = a + "月" + r + "日";
       (n.innerText = "正在识别 " + i + " 排产  ! ! "), (n.style.color = "#fff");
-      t.onload = (e) => {
+      let s = "";
+      t.onload = function (e) {
         (s = e.target.result), (s = s.split(",")[1]);
         let t = new FormData();
         t.append("image", s);
@@ -541,12 +619,12 @@ export default {
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
           },
-          url: `https://aip.baidubce.com/rest/2.0/ocr/v1/doc_analysis_office?access_token=${that.token}`,
+          url: "https://aip.baidubce.com/rest/2.0/ocr/v1/doc_analysis_office?access_token=24.18a2476ea388f0789a389319a126fb72.2592000.1682742490.282335-27736960",
           data: t,
         })
           .then((e) => {
             let t = e.data.results;
-            // console.log(t);
+            console.log(t);
             let n = t.length,
               o = [],
               a = [],
@@ -573,8 +651,7 @@ export default {
                   coding: a[s][2].slice(-5),
                   product: a[s][4].slice(0, 3),
                   target: a[s][10],
-                  background: "green",
-                  color: "",
+                  clear: "green",
                   count: "",
                   result: "= 0",
                   liData: "",
@@ -612,6 +689,7 @@ export default {
             (o[n].color = "rgb(255, 255, 255)"))
           : ((t.style.color = ""), (o[n].color = "")),
         localStorage.setItem("indexData", JSON.stringify(o)));
+      localStorage.getItem("indexData");
     },
     clickDelete(e) {
       e = e.currentTarget;
@@ -680,10 +758,7 @@ export default {
       return s;
     },
   },
-  mounted() {
-    this.token =
-      "24.26b7e71cb8ac1e2c5c07f6639a30b864.2592000.1685440397.282335-27736960";
-  },
+  mounted() {},
   created() {
     //获取localStroage值
     var str = localStorage.getItem("indexData");
@@ -693,7 +768,7 @@ export default {
     // 存在转换一下，不存在直接生成
     if (str) {
       obj = JSON.parse(str);
-      //   console.log(obj);
+      console.log(obj);
       obj2 = JSON.parse(str2);
       this.ccc = obj2;
 
@@ -705,7 +780,7 @@ export default {
           coding: "",
           product: "",
           target: "",
-          background: "green",
+          clear: "",
           color: "",
           count: "",
           result: "= 0",
@@ -721,7 +796,7 @@ export default {
         coding: "",
         product: "",
         target: "",
-        background: "green",
+        clear: "",
         count: "",
         result: "= 0",
         liData: "",
@@ -753,12 +828,11 @@ export default {
         localStorage.setItem("timePasswords", JSON.stringify(obj3));
       }
     }
-    console.log(this.indexData);
+    console.log(obj);
   },
   beforeCreate() {},
 };
 </script>
-
 <style lang="scss">
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -766,7 +840,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
 }
-//
+// 遮罩
 .mack {
   position: absolute;
   z-index: 100;
@@ -907,30 +981,30 @@ export default {
       span {
         color: #fff;
         opacity: 0.5;
-        font-size: 0.4267rem;
+        font-size: 16px;
         position: absolute;
-        top: 1.7333rem;
-        left: -4.1867rem;
+        top: 65px;
+        left: -157px;
       }
       p {
         color: #f7f8fa;
         opacity: 0.5;
-        font-size: 0.4267rem;
+        font-size: 16px;
         width: 160%;
         height: 20%;
         position: absolute;
-        top: 1.84rem;
-        left: -1.6rem;
+        top: 69px;
+        left: -60px;
         z-index: 2100;
       }
     }
     .timeShow {
       color: #fff;
-      width: 4.8rem;
-      height: 0.5333rem;
+      width: 180px;
+      height: 20px;
       opacity: 0.5;
-      font-size: 0.4267rem;
-      margin-top: -0.0267rem;
+      font-size: 16px;
+      margin-top: -1px;
     }
     // 删除单个机台所有数据弹窗
     .confirm {
@@ -988,305 +1062,237 @@ export default {
     top: 8%;
     left: 7%;
     z-index: 120;
-    box-shadow: 0.0533rem 0.0533rem 5.3333rem 5.3333rem rgb(0 0 0 / 70%);
+    box-shadow: 2px 2px 200px 200px rgb(0 0 0 / 70%);
     p {
       margin-bottom: 0.32rem;
     }
   }
-  .por02 {
-    overflow: auto;
-    .por {
+  .por {
+    // display: flex;
+    // flex-wrap: wrap;
+    box-sizing: border-box;
+    margin-left: 0.2667rem;
+    // 机台
+    .machine {
+      display: flex;
+      flex-wrap: wrap;
+      position: relative;
+      margin: 0 0 0.1867rem 0;
       box-sizing: border-box;
-      margin-left: 0.2667rem;
-      // 机台
-      .machine {
-        display: flex;
-        flex-wrap: wrap;
+      width: 9.9rem;
+      input {
+        width: 1.2rem;
+        height: 0.8rem;
+        margin-left: 0.1333rem;
+        padding-left: 0.1333rem;
+        border-radius: 0.16rem;
+        color: #757575;
+        border: 0.0267rem solid #ccc;
+        font-size: 0.4533rem;
+      }
+      input:nth-child(1) {
+        width: 1.22rem;
+      }
+      input:nth-child(2) {
+        width: 1.6rem;
+      }
+      input:nth-child(3) {
+        width: 1.48rem;
+      }
+      input:nth-child(4) {
+        width: 1.05rem;
+      }
+      .iptOne {
+        position: absolute;
+        top: 0;
+        left: 4.9333rem;
+        z-index: 110;
+      }
+      .clearBtn {
+        color: #000;
+        position: absolute;
+        top: 0rem;
+        left: 6.59rem;
+        width: 1.2533rem;
+        text-align: center;
+        line-height: 0.8rem;
+        height: 0.84rem;
+        font-size: 0.4267rem;
+        -webkit-appearance: none;
+        appearance: none;
+        border-radius: 0.1333rem;
+        background: yellow;
+        opacity: 0.2;
+      }
+      .countIpt {
+        margin-bottom: 0.5rem;
+        margin-top: 0.1333rem;
         position: relative;
-        margin: 0 0 0.1867rem 0;
-        box-sizing: border-box;
-        width: 9.9rem;
-        &::before {
-          content: "|";
-          position: absolute;
-          transform: translateY(-50%);
-          display: var(--display);
-          top: 41px;
-          left: 7px;
-          width: 1px;
-          height: 0px;
-          z-index: 100;
-          animation: blink 1s step-end infinite;
-          font-size: 17px;
-          @keyframes blink {
-            from,
-            to {
-              opacity: 0;
-            }
-            50% {
-              opacity: 1;
-            }
-          }
+        width: 8.4rem;
+      }
+      // 结果
+      .countResult {
+        position: absolute;
+        top: 1rem;
+        left: 6.6133rem;
+        background: none;
+        width: 1.8133rem;
+        text-align: right;
+        border: none;
+        color: #848492;
+        font-size: 0.5333rem;
+      }
+      // 点击又滑
+      .slide {
+        width: 60px;
+        height: 55px;
+        position: absolute;
+        font-size: 17px;
+        color: #f1f1f1;
+        top: -23px;
+        left: 299px;
+        padding-left: 10px;
+        padding-top: 26px;
+        opacity: 1;
+      }
+      // 时间
+      ul.time {
+        margin-left: 0.16rem;
+        font-size: 0.3733rem;
+        height: 0.5333rem;
+        line-height: 0.5333rem;
+
+        position: absolute;
+        top: 1.9467rem;
+        left: 0;
+        z-index: 10;
+        margin-bottom: 0.2667rem;
+        li {
+          float: left;
+          width: 1.36rem;
+
+          color: rgb(252, 252, 252, 0.8);
         }
-        input {
-          width: 1.2rem;
-          height: 0.8rem;
-          margin-left: 0.1333rem;
-          padding-left: 0.1933rem;
-          border-radius: 0.16rem;
-          color: #757575;
-          border: 0.0267rem solid #ccc;
+      }
+      // 清除弹窗
+      .confirm {
+        width: 5.3333rem;
+        text-align: center;
+        height: 2.8933rem;
+        background: #fff;
+        font-size: 0.4267rem;
+        position: fixed;
+        left: 25%;
+        top: 35%;
+        color: #7f939a;
+        display: none;
+
+        border-radius: 0.2667rem;
+        overflow: hidden;
+        z-index: 100;
+        p {
+          height: 1.8133rem;
+          padding-top: 0.2667rem;
+          box-sizing: border-box;
+          line-height: 0.6rem;
+          margin: 0;
           font-size: 0.4533rem;
+          color: hsl(0, 0%, 100%, 90%);
+          background: #7fad9a;
         }
-        input:nth-child(1) {
-          width: 1.22rem;
+        div {
+          width: 50%;
+          box-sizing: border-box;
+          height: 1.28rem;
+          line-height: 0.98rem;
+          display: inline-block;
+          color: hsl(0, 0%, 100%, 90%);
         }
-        input:nth-child(2) {
-          width: 1.6rem;
+        .left {
+          background: #9fb8c1;
         }
-        input:nth-child(3) {
-          width: 1.48rem;
+        .right {
+          background: #7fad9a;
+          background: #b2c69a;
         }
-        input:nth-child(4) {
-          width: 1.05rem;
+      }
+      .rightBtn {
+        width: 2.6667rem;
+        height: 1.2533rem;
+        position: absolute;
+        font-size: 0.4267rem;
+        top: 35px;
+        right: -91px;
+        // 滑动删除按钮
+        .delete,
+        .collection {
+          //
+          margin: 0 0.1067rem 0 0;
+          border-radius: 0.2133rem;
+          width: 0.9333rem;
+          padding: 0.1067rem;
+          display: inline-block;
+          height: 0.6133rem;
         }
-        .iptOne {
-          position: absolute;
-          top: 0;
-          left: 4.9333rem;
-          z-index: 110;
+        .delete {
+          border: 0.0267rem hsl(33, 100%, 50%) solid;
+          background: rgba(255, 136, 0, 0.7);
+          color: #fff;
         }
-        .clearBtn {
-          color: #000;
-          position: absolute;
-          top: 0rem;
-          left: 6.8267rem;
-          width: 1.2533rem;
-          text-align: center;
-          line-height: 0.8rem;
-          height: 0.84rem;
-          font-size: 0.4267rem;
-          -webkit-appearance: none;
-          appearance: none;
-          border-radius: 0.1333rem;
-          background: yellow;
-          opacity: 0.2;
+        .collection {
+          background: #6bae92;
+          border: 0.0267rem rgb(1, 169, 1) solid;
+          color: #fff;
         }
-        .countIpt {
-          margin-bottom: 0.5rem;
-          margin-top: 0.1333rem;
-          position: relative;
-          width: 8.4rem;
-        }
-
-        // 结果
-        .countResult {
-          position: absolute;
-          top: 1rem;
-          left: 6.6133rem;
-          background: none;
-          width: 1.8133rem;
-          text-align: right;
-          border: none;
-          color: #848492;
-          font-size: 0.5333rem;
-        }
-        // 点击又滑
-        .slide {
-          width: 1.6rem;
-          height: 1.4667rem;
-          position: absolute;
-          font-size: 0.4533rem;
-          color: #f1f1f1;
-          top: -0.6133rem;
-          left: 7.9733rem;
-          padding-left: 0.2667rem;
-          padding-top: 0.6933rem;
-          opacity: 1;
-        }
-        // 时间
-        ul.time {
-          margin-left: 0.16rem;
-          font-size: 0.3733rem;
-          height: 0.5333rem;
-          line-height: 0.5333rem;
-
-          position: absolute;
-          top: 1.9467rem;
-          left: 0;
-          z-index: 10;
-          margin-bottom: 0.2667rem;
-          li {
-            float: left;
-            width: 1.36rem;
-
-            color: rgb(252, 252, 252, 0.8);
-          }
-        }
-        // 清除弹窗
-        .confirm {
-          width: 5.3333rem;
-          text-align: center;
-          height: 2.8933rem;
-          background: #fff;
-          font-size: 0.4267rem;
-          position: fixed;
-          left: 25%;
-          top: 35%;
-          color: #7f939a;
-          display: none;
-
-          border-radius: 0.2667rem;
-          overflow: hidden;
-          z-index: 100;
-          p {
-            height: 1.8133rem;
-            padding-top: 0.2667rem;
-            box-sizing: border-box;
-            line-height: 0.6rem;
-            margin: 0;
-            font-size: 0.4533rem;
-            color: hsl(0, 0%, 100%, 90%);
-            background: #7fad9a;
-          }
-          div {
-            width: 50%;
-            box-sizing: border-box;
-            height: 1.28rem;
-            line-height: 0.98rem;
-            display: inline-block;
-            color: hsl(0, 0%, 100%, 90%);
-          }
-          .left {
-            background: #9fb8c1;
-          }
-          .right {
-            background: #7fad9a;
-            background: #b2c69a;
-          }
-        }
-        .rightBtn {
-          width: 2.6667rem;
-          height: 1.2533rem;
-          position: absolute;
-          font-size: 0.4267rem;
-          top: 0.9333rem;
-          right: -2.4267rem;
-          // 滑动删除按钮
-          .delete,
-          .collection {
-            //
-            margin: 0 0.1067rem 0 0;
-            border-radius: 0.2133rem;
-            width: 0.9333rem;
-            padding: 0.1067rem;
-            display: inline-block;
-            height: 0.6133rem;
-          }
-          .delete {
-            border: 0.0267rem hsl(33, 100%, 50%) solid;
-            background: rgba(255, 136, 0, 0.7);
-            color: #fff;
-          }
-          .collection {
-            background: #6bae92;
-            border: 0.0267rem rgb(1, 169, 1) solid;
-            color: #fff;
-          }
-        }
-        .jiShuan {
-          position: absolute;
-          top: 1.84rem;
-          left: 6.6933rem;
-          color: #f1f1f1;
-          font-size: 0.4267rem;
-        }
+      }
+      .jiShuan {
+        position: absolute;
+        top: 69px;
+        left: 251px;
+        color: #f1f1f1;
+        font-size: 16px;
       }
     }
-  }
-  // 数字键盘
-  .keyboard {
-    background: #ccc;
-    font-size: 28px;
-    position: fixed;
-    border-radius: 10px;
-    top: 61vh;
-    width: 100vw;
-    border: 1px solid #524e4e;
-    z-index: 10000;
-    height: 39vh;
-    .jianpan {
-      position: absolute;
-      top: 0;
-      padding: 4vw 0 0 23vw;
-      width: 77vw;
-      text-align: center;
-      -webkit-text-align: center;
+    // 数字键盘
+    .keyboard {
+      background: #f2f3f5;
+      position: fixed;
+      left: -1%;
+      top: 60%;
+      padding: 10px;
+      width: 100%;
+      height: 40%;
+
+      z-index: 10000;
+      //   box-sizing: border-box;
       button {
-        background: white;
-        border-radius: 0.2667rem;
-        text-align: center;
-        -webkit-text-align: center;
-        -webkit-line-height: 1.3333rem;
-        line-height: 1.3333rem;
-        color: #747479;
-        border: 1px solid #aaa9a9;
-        width: 1.60333rem;
-        height: 1.3333rem;
-        margin: 0 0.12rem 0.12rem 0;
-      }
-      .operator {
-        background: #eaeaea;
-      }
-      button:active {
-        background: rgb(177, 132, 50);
+        background: #ffffff;
+        border-radius: 10px;
+        color: #9999a3;
+        border: 0;
+        width: 80px;
+        height: 50px;
+        margin: 5px;
       }
       .delete {
-        // -webkit-color: orange;
-        // color: orange;
+        color: orange;
         i {
           opacity: 0.6;
-          //   -webkit-opacity: 0.6;
         }
       }
       .complete {
-        background: #7fad9a;
+        background: orange;
+        opacity: 0.6;
         color: #fff;
-        font-size: 0.533rem;
-        line-height: 0.5333rem;
-        margin-top: -0rem;
+        font-size: 20px;
+        line-height: 20px;
+        margin-top: 0px;
         vertical-align: middle;
       }
-    }
-    .zhuangshiDiv {
-      position: absolute;
-      left: 5vw;
-      top: 4vw;
-      width: 1.60333rem;
-      button {
-        background: white;
-        border-radius: 0.2667rem;
-        text-align: center;
-        -webkit-text-align: center;
-        -webkit-line-height: 1.3333rem;
-        line-height: 1.3333rem;
-        color: #747479;
-        border: 1px solid #aaa9a9;
-        width: 1.60333rem;
-        height: 1.3333rem;
-        margin-bottom: 0.12rem;
+      .lin {
+        // width: 170px;
       }
     }
   }
-}
-.back02 {
-  position: fixed;
-  top: 70%;
-  left: 70%;
-  width: 80px;
-  height: 70px;
-  background: #000;
-  border-radius: 10px;
-  opacity: 0.5;
 }
 </style>
